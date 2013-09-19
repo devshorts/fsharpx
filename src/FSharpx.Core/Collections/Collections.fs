@@ -191,7 +191,8 @@ module Seq =
     /// Pages the underlying sequence
     let page page pageSize (source : seq<_>) =
           source |> skipNoFail (page * pageSize) |> Seq.truncate pageSize
-        
+    
+    /// Creates a new sequence where the seperator is before each original element
     let prependToAll sep list = 
         seq{
             for element in list do
@@ -199,6 +200,7 @@ module Seq =
                 yield element
         }
 
+    /// Creates a new sequence consisting of the seperator interspesed between elements
     let intersperse (sep: 'a) (list: 'a seq) : 'a seq = 
         seq { 
             let notFirst = ref false 
@@ -207,6 +209,19 @@ module Seq =
               yield element; 
               notFirst := true
       } 
+
+    /// Folds a sequence until the check returns false
+    let foldWhile check accumulator seed (source:seq<'a>) =     
+        let mutable finished = false    
+        let mutable state = seed 
+
+        use e = source.GetEnumerator() 
+
+        while e.MoveNext() && not finished do
+            match check e.Current with
+                | true -> state <- accumulator state e.Current
+                | false -> finished <- true
+        state
 
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module Array = 

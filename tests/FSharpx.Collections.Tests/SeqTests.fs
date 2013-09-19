@@ -226,6 +226,32 @@ let ``I should interperse always 2n-1 elements``() =
             
     fsCheck "interperse a list" intersperse 
 
+[<Test>]
+let ``I shouldn't fold while on a false predicate``() = 
+    let elements = [1;2;3;4;5;6;7;8]
 
+    let stop a = false
 
+    let result = elements |> Seq.foldWhile stop (+) 0 
 
+    result |> should equal 0
+
+[<Test>]
+let ``I should fold till the end if the fold while check is never false``() = 
+    let elements = [1;2;3;4;5;6;7;8]
+
+    let stop a = true
+
+    let result = elements |> Seq.foldWhile stop (+) 0 
+
+    result |> should equal (elements |> List.reduce (+))
+
+[<Test>]
+let ``I should stop when the fold while predicate is false``() = 
+    let elements = [1;2;3;4;5;6;7;8]
+
+    let stop = (>) 4
+
+    let result = elements |> Seq.foldWhile stop (+) 0 
+
+    result |> should equal (1 + 2 + 3)
